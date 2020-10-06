@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -42,9 +42,21 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.discount = discount
         self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
+        self.RunValueIterationAgent()
 
-        # Write value iteration code here
-        "*** YOUR CODE HERE ***"
+
+    def RunValueIterationAgent(self):
+        for i in range(self.iterations):
+          states = self.mdp.getStates()
+          counter_temporario = util.Counter()
+          for state in states:
+            valor_maximo = float("-inf")
+            for action in self.mdp.getPossibleActions(state):
+              q = self.computeQValueFromValues(state, action)
+              if q > valor_maximo:
+                valor_maximo = q
+              counter_temporario[state] = valor_maximo
+          self.values = counter_temporario
 
 
     def getValue(self, state):
@@ -59,8 +71,10 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        q = 0
+        for transition in self.mdp.getTransitionStatesAndProbs(state, action):
+            q = q + transition[1] * (self.mdp.getReward(state, action, transition[0]) + self.discount * self.values[transition[0]])
+        return q
 
     def computeActionFromValues(self, state):
         """
@@ -71,8 +85,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+       
+        melhor_action = None
+        valor_maximo = float("-inf")
+        for action in self.mdp.getPossibleActions(state):
+          q = self.computeQValueFromValues(state, action)
+          if q > valor_maximo:
+            valor_maximo = q
+            melhor_action = action
+        return melhor_action
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
